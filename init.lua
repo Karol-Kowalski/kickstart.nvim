@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -176,10 +176,10 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
--- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
--- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
--- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
--- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
+vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
+vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
+vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -189,6 +189,14 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Keybinds to move lines of codes
+vim.keymap.set('v', 'J', ":m '>+1<CR>gv=gv", { desc = 'Move whole line down' })
+vim.keymap.set('v', 'K', ":m '<-2<CR>gv=gv", { desc = 'Move whole line up' })
+
+-- Keybinds to open native nvim explorer
+vim.keymap.set('n', '<leader>pv', ':Vex<CR>', { desc = 'Open native nvim explorer' })
+vim.keymap.set('n', '<leader>tt', ':Neotree<CR>', { desc = 'Open native nvim explorer' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -227,6 +235,22 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+
+  --  PHP plugins
+  'tpope/vim-dispatch',
+  'StanAngeloff/php.vim',
+  'stephpy/vim-php-cs-fixer',
+  'jwalton512/vim-blade',
+  'noahfrederick/vim-laravel',
+
+  -- 'nvim-tree/nvim-tree.lua',
+  -- 'nvim-tree/nvim-web-devicons',
+
+  -- nvim-cmp support
+  -- 'hrsh7th/nvim-cmp',
+  -- 'hrsh7th/cmp-nvim-lsp',
+  -- 'saadparwaiz1/cmp_luasnip',
+  -- 'L3MON4D3/LuaSnip',
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -566,6 +590,69 @@ require('lazy').setup({
         -- But for many setups, the LSP (`tsserver`) will work just fine
         -- tsserver = {},
         --
+        intelephense = {
+          cmd = { 'intelephense', '--stdio' },
+          filetypes = { 'php' },
+        },
+
+        diagnosticls = {
+          -- filetypes = vim.tbl_keys(filetypes),
+          init_options = {
+            filetypes = {
+              php = { 'phpcs', 'psalm' },
+            },
+            linters = {
+              phpcs = {
+                command = 'vendor/bin/phpcs',
+                debounce = 300,
+                rootPatterns = { 'composer.lock', 'vendor', '.git' },
+                args = { '--report=emacs', '-s', '-' },
+                offsetLine = 0,
+                offsetColumn = 0,
+                sourceName = 'phpcs',
+                formatLines = 1,
+                formatPattern = {
+                  '^.*:(\\d+):(\\d+):\\s+(.*)\\s+-\\s+(.*)(\\r|\\n)*$',
+                  {
+                    line = 1,
+                    column = 2,
+                    message = 4,
+                    security = 3,
+                  },
+                },
+                securities = {
+                  error = 'error',
+                  warning = 'warning',
+                },
+                equiredFiles = { 'vendor/bin/phpcs' },
+              },
+              psalm = {
+                command = './vendor/bin/psalm',
+                debounce = 100,
+                rootPatterns = { 'composer.lock', 'vendor', '.git' },
+                args = { '--output-format=emacs', '--no-progress' },
+                offsetLine = 0,
+                offsetColumn = 0,
+                sourceName = 'psalm',
+                formatLines = 1,
+                formatPattern = {
+                  '^[^ =]+ =(\\d+) =(\\d+) =(.*)\\s-\\s(.*)(\\r|\\n)*$',
+                  {
+                    line = 1,
+                    column = 2,
+                    message = 4,
+                    security = 3,
+                  },
+                },
+                securities = {
+                  error = 'error',
+                  warning = 'warning',
+                },
+                requiredFiles = { 'vendor/bin/psalm' },
+              },
+            },
+          },
+        },
 
         lua_ls = {
           -- cmd = {...},
@@ -824,7 +911,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'php', 'yaml', 'phpdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -866,7 +953,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`

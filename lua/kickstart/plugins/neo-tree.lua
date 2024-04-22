@@ -14,8 +14,14 @@ return {
     { '\\', ':Neotree reveal<CR>', { desc = 'NeoTree reveal' } },
   },
   opts = {
+    close_if_last_window = true,
     filesystem = {
+      filtered_itmes = {
+        hide_dotfiles = false,
+        hide_hidden = false,
+      },
       window = {
+        position = 'right',
         mappings = {
           ['\\'] = 'close_window',
         },
