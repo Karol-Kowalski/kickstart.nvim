@@ -361,10 +361,77 @@ require('lazy').setup({
           return vim.fn.executable 'make' == 1
         end,
       },
-      { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
       { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
+
+      -- dependencies for DAP XDEBUG
+      { 'nvim-telescope/telescope-ui-select.nvim' },
+      { 'mfussenegger/nvim-dap' },
+      { 'rcarriga/nvim-dap-ui' },
+      { 'theHamsta/nvim-dap-virtual-text' },
+      { -- DAP configuration for XDEBUG
+        'nvim-telescope/telescope-dap.nvim',
+        config = function()
+          local dap = require 'dap'
+
+          dap.adapters.php = {
+            type = 'executable',
+            command = 'node',
+            args = { os.getenv 'HOME' .. '/vscode-php-debug/out/phpDebug.js' },
+          }
+          dap.configurations.php = {
+            {
+              type = 'php',
+              request = 'launch',
+              name = 'Listen for Xdebug',
+              port = 9003,
+            },
+          }
+
+          vim.keymap.set('n', '<F5>', function()
+            dap.continue()
+          end)
+          vim.keymap.set('n', '<F10>', function()
+            dap.step_over()
+          end)
+          vim.keymap.set('n', '<F11>', function()
+            dap.step_into()
+          end)
+          vim.keymap.set('n', '<F12>', function()
+            dap.step_out()
+          end)
+          vim.keymap.set('n', '<Leader>b', function()
+            dap.toggle_breakpoint()
+          end)
+          vim.keymap.set('n', '<Leader>B', function()
+            dap.set_breakpoint()
+          end)
+          vim.keymap.set('n', '<Leader>lp', function()
+            dap.set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
+          end)
+          vim.keymap.set('n', '<Leader>dr', function()
+            dap.repl.open()
+          end)
+          vim.keymap.set('n', '<Leader>dl', function()
+            dap.run_last()
+          end)
+          vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
+            require('dap.ui.widgets').hover()
+          end)
+          vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
+            require('dap.ui.widgets').preview()
+          end)
+          vim.keymap.set('n', '<Leader>df', function()
+            local widgets = require 'dap.ui.widgets'
+            widgets.centered_float(widgets.frames)
+          end)
+          vim.keymap.set('n', '<Leader>ds', function()
+            local widgets = require 'dap.ui.widgets'
+            widgets.centered_float(widgets.scopes)
+          end)
+        end,
+      },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -428,6 +495,7 @@ require('lazy').setup({
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'dap')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -466,7 +534,6 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
-
   { -- LSP Configuration & Plugins
     'neovim/nvim-lspconfig',
     dependencies = {
