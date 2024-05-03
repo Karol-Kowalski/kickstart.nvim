@@ -375,6 +375,50 @@ require('lazy').setup({
         config = function()
           local dap = require 'dap'
 
+          vim.keymap.set('n', '<F5>', function()
+            dap.continue()
+          end, { desc = '[Xdebug] start/stop debugging' })
+          vim.keymap.set('n', '<F10>', function()
+            dap.step_over()
+          end, { desc = '[Xdebug] step over' })
+          vim.keymap.set('n', '<F11>', function()
+            dap.step_into()
+          end, { desc = '[Xdebug] step into' })
+          vim.keymap.set('n', '<F12>', function()
+            dap.step_out()
+          end, { desc = '[Xdebug] step out' })
+          vim.keymap.set('n', '<Leader>b', function()
+            dap.toggle_breakpoint()
+          end, { desc = '[Xdebug] toggle breakpoint' })
+          vim.keymap.set('n', '<Leader>B', function()
+            dap.set_breakpoint()
+          end, { desc = '[Xdebug] set breakpoint' })
+          vim.keymap.set('n', '<Leader>lp', function()
+            dap.set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
+          end, { desc = '[Xdebug] set breakpoint with log point message' })
+          vim.keymap.set('n', '<Leader>dr', function()
+            dap.repl.open()
+          end, { desc = '[Xdebug] open logs' })
+          vim.keymap.set('n', '<Leader>dl', function()
+            dap.run_last()
+          end, { desc = '[Xdebug] run last' })
+          vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
+            require('dap.ui.widgets').hover()
+          end, { desc = '[Xdebug] open valuation hover' })
+          vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
+            require('dap.ui.widgets').preview()
+          end, { desc = '[Xdebug] open preview' })
+          vim.keymap.set('n', '<Leader>df', function()
+            local widgets = require 'dap.ui.widgets'
+            widgets.centered_float(widgets.frames)
+          end, { desc = '[Xdebug] open frames' })
+          vim.keymap.set('n', '<Leader>ds', function()
+            local widgets = require 'dap.ui.widgets'
+            widgets.centered_float(widgets.scopes)
+          end, { desc = '[Xdebug] open float scopes' })
+
+          local dap = require 'dap'
+
           dap.adapters.php = {
             type = 'executable',
             command = 'node',
@@ -386,50 +430,11 @@ require('lazy').setup({
               request = 'launch',
               name = 'Listen for Xdebug',
               port = 9003,
+              log = false,
+              localSourceRoot = '${workspaceFolder}',
+              serverSourceRoot = '/var/www/html/',
             },
           }
-
-          vim.keymap.set('n', '<F5>', function()
-            dap.continue()
-          end)
-          vim.keymap.set('n', '<F10>', function()
-            dap.step_over()
-          end)
-          vim.keymap.set('n', '<F11>', function()
-            dap.step_into()
-          end)
-          vim.keymap.set('n', '<F12>', function()
-            dap.step_out()
-          end)
-          vim.keymap.set('n', '<Leader>b', function()
-            dap.toggle_breakpoint()
-          end)
-          vim.keymap.set('n', '<Leader>B', function()
-            dap.set_breakpoint()
-          end)
-          vim.keymap.set('n', '<Leader>lp', function()
-            dap.set_breakpoint(nil, nil, vim.fn.input 'Log point message: ')
-          end)
-          vim.keymap.set('n', '<Leader>dr', function()
-            dap.repl.open()
-          end)
-          vim.keymap.set('n', '<Leader>dl', function()
-            dap.run_last()
-          end)
-          vim.keymap.set({ 'n', 'v' }, '<Leader>dh', function()
-            require('dap.ui.widgets').hover()
-          end)
-          vim.keymap.set({ 'n', 'v' }, '<Leader>dp', function()
-            require('dap.ui.widgets').preview()
-          end)
-          vim.keymap.set('n', '<Leader>df', function()
-            local widgets = require 'dap.ui.widgets'
-            widgets.centered_float(widgets.frames)
-          end)
-          vim.keymap.set('n', '<Leader>ds', function()
-            local widgets = require 'dap.ui.widgets'
-            widgets.centered_float(widgets.scopes)
-          end)
         end,
       },
     },
